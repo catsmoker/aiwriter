@@ -5,40 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>AI Content Generator - CATSMOKER</title>
     
-    <link rel="icon" href="assets/ico/favicon.ico" type="image/x-icon">
-    
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Font Awesome -->
     
-    <!-- Global Base Styles -->
-    <link rel="stylesheet" href="assets/css/home.css">
-    <!-- Page Specific Styles -->
-    <link rel="stylesheet" href="assets/css/aiwriter.css">
-    <!-- Cursor Styles -->
-    <link rel="stylesheet" href="assets/css/cursor.css">
+    <link rel="stylesheet" href="style.css">
 
     <!-- JSZip library for creating zip files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 </head>
 <body>
-    <!-- Custom cursor elements -->
-    <div class="cursor-dot"></div>
-    <div class="cursor-dot-outline"></div>
-
-    <!-- Back Button -->
-    <header class="page-header-nav">
-        <a href="index.html" class="back-button-page" aria-label="Go back to main page">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-    </header>
 
     <div class="main-container-page ai-writer-container">
         <!-- Header Section -->
         <section class="profile-header-page container-card">
-             <img src="assets/imgs/logo.webp" alt="CATSMOKER Logo" class="profile-pic">
             <h1><i class="fas fa-feather-alt"></i> AI Content Generator</h1>
             <p>Create high-quality, SEO-optimized articles with AI. Powered by Google Gemini.</p>
         </section>
@@ -84,7 +66,6 @@
                         <i class="fas fa-edit"></i>
                         <h3>Custom Topic</h3>
                     </div>
-                    <!-- Add more categories as needed -->
                 </div>
 
                 <div id="customTopicSection" class="input-group hidden"> <!-- Renamed ID -->
@@ -97,7 +78,6 @@
                     <label for="articleCount"><i class="fas fa-copy"></i> Number of Articles (Max 10)</label>
                     <input type="number" id="articleCount" value="1" min="1" max="10" aria-label="Number of articles to generate">
                 </div>
-                <!-- Add more configuration options here if needed (e.g., tone, length) -->
 
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
@@ -139,10 +119,8 @@
     <!-- Footer -->
     <footer class="global-footer-enhanced">
         <p>© 2024-2025 CATSMOKER. All rights reserved.</p>
-        <!-- Removed viewers count from tool page -->
     </footer>
 
-    <script src="assets/js/aiwriter.js" defer></script>
-    <script src="assets/js/cursor.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

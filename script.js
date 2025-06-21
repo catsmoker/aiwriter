@@ -1,13 +1,9 @@
-// aiwriter.js - Page specific JS for aiwriter.html
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Configuration & State
-    const MAX_ARTICLES = 10; // Set max limit
-    let currentCategory = '1'; // Default category
+    const MAX_ARTICLES = 10;
+    let currentCategory = '1';
     let apiKey = localStorage.getItem('gemini_api_key') || '';
     let isGenerating = false;
 
-    // DOM Elements
     const apiKeyInput = document.getElementById('apiKey');
     const apiSection = document.getElementById('apiSection');
     const mainUI = document.getElementById('mainUI');
@@ -21,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusBar = document.getElementById('statusBar');
     const apiKeyStatus = document.getElementById('apiKeyStatus');
 
-    // --- Initialization ---
     function initialize() {
         initCategoryCards();
         if (apiKey) {
@@ -38,11 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', handleCategorySelection);
             card.addEventListener('keydown', (e) => {
                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleCategorySelection.call(card); // Use call to set 'this' correctly
+                    handleCategorySelection.call(card);
                  }
             });
         });
-        // Activate the default category visually
         const defaultCard = document.querySelector(`.category-card[data-category="${currentCategory}"]`);
         if (defaultCard) defaultCard.classList.add('active');
     }
@@ -57,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
          if(currentCategory === '4') {
              customTopicInput.focus();
          }
-         clearStatus(); // Clear status when changing category
+         clearStatus();
     }
 
     function showApiSection() {
@@ -69,11 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMainUI() {
         apiSection.classList.add('hidden');
         mainUI.classList.remove('hidden');
-        clearStatus(); // Clear any previous status messages
+        clearStatus();
     }
 
     // --- API Key Handling ---
-    window.saveAPIKey = function() { // Make global for onclick
+    window.saveAPIKey = function() {
         apiKey = apiKeyInput.value.trim();
         if (!apiKey) {
             setApiKeyStatus('Please enter a valid API key', 'error');
@@ -81,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Basic validation (can be improved)
         if (apiKey.length < 30) { 
              setApiKeyStatus('API key seems too short.', 'error');
              apiKeyInput.focus();
@@ -90,13 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         localStorage.setItem('gemini_api_key', apiKey);
         setApiKeyStatus('API key saved successfully!', 'success');
-        setTimeout(() => { // Show main UI after a short delay
+        setTimeout(() => {
             showMainUI();
-             setApiKeyStatus(''); // Clear status after transition
+             setApiKeyStatus('');
         }, 800);
     }
 
-    window.changeApiKey = function() { // Make global for onclick
+    window.changeApiKey = function() {
         showApiSection();
         setApiKeyStatus('Enter your new API Key.');
     }
@@ -104,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setApiKeyStatus(message, type = 'info') {
         if (!apiKeyStatus) return;
         apiKeyStatus.textContent = message;
-        apiKeyStatus.className = `api-key-status ${type}`; // Add class for styling
+        apiKeyStatus.className = `api-key-status ${type}`;
     }
 
     // --- Input Validation ---
@@ -127,10 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validateInputs(topic, count) {
-        clearStatus(); // Clear previous errors
+        clearStatus();
         if (!apiKey) {
             showStatus('API key is missing. Please save your API key.', 'error');
-            showApiSection(); // Show API section if key missing
+            showApiSection();
             return false;
         }
         if (count < 1 || count > MAX_ARTICLES) {
@@ -144,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 customTopicInput.focus();
                 return false;
             }
-            if (!validateCustomTopic()) { // Re-validate length
+            if (!validateCustomTopic()) {
                  customTopicInput.focus();
                  return false;
             }
@@ -152,14 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // --- Article Generation ---
-    window.generateArticles = async function() { // Make global for onclick
+    window.generateArticles = async function() {
         if (isGenerating) return;
 
         const count = parseInt(articleCountInput.value) || 1;
         const topic = currentCategory === '4' 
             ? customTopicInput.value.trim()
-            : getDefaultTopic(); // Use function to get default topic
+            : getDefaultTopic();
 
         if (!validateInputs(topic, count)) {
             return;
@@ -174,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const zip = new JSZip();
         let generatedCount = 0;
         let failedCount = 0;
-        const delayBetweenRequests = 1000; // 1 second delay to avoid rate limits
+        const delayBetweenRequests = 1000;
 
         try {
             for (let i = 0; i < count; i++) {
@@ -187,12 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) {
                     console.error(`Failed to generate article ${i + 1}:`, error);
                     failedCount++;
-                    // Optionally add a placeholder file for failed articles
                     zip.file(`FAILED_article_${i+1}.txt`, `Article generation failed.\nTopic: ${topic}\nError: ${error.message}`);
                 }
                 updateProgress(((i + 1) / count) * 100);
 
-                // Add delay if not the last article
                 if (i < count - 1) {
                     await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
                 }
@@ -214,29 +204,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 showStatus(`Failed to generate any articles. ${failedCount > 0 ? 'All attempts failed.' : 'Please check your API key or prompt.'}`, 'error');
             }
 
-        } catch (error) { // Catch errors during the loop or zipping
+        } catch (error) {
             console.error('Generation process error:', error);
             showStatus(`An unexpected error occurred: ${error.message}`, 'error');
         } finally {
             isGenerating = false;
             generateBtn.disabled = false;
             generateBtn.innerHTML = '<i class="fas fa-rocket"></i> Generate Articles';
-            // Optionally reset progress after a delay if showing success/error message
             setTimeout(resetProgress, 3000);
         }
     }
 
     async function fetchArticleFromGemini(topic) {
-        const prompt = generatePrompt(topic); // Get the tailored prompt
+        const prompt = generatePrompt(topic);
         const requestBody = {
             contents: [{ parts: [{ text: prompt }] }],
-             // Optional: Add safety settings and generation config if needed
-            // safetySettings: [{ category: "HARM_CATEGORY_...", threshold: "BLOCK_MEDIUM_AND_ABOVE" }],
-            // generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } 
         };
 
         try {
-            // Using gemini-1.5-flash as a faster, cheaper alternative suitable for many tasks
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -248,10 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     errorData = await response.json();
                 } catch (e) {
-                    // Handle cases where the error response isn't valid JSON
                     throw new Error(`API request failed with status ${response.status} ${response.statusText}`);
                 }
-                 // Look for detailed error messages
                 const message = errorData?.error?.message || `API Error ${response.status}`;
                 console.error('Gemini API Error:', errorData);
                 throw new Error(message);
@@ -259,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Check for content blocks or safety issues
             if (data.promptFeedback && data.promptFeedback.blockReason) {
                  throw new Error(`Content blocked due to: ${data.promptFeedback.blockReason}. Try rephrasing your topic.`);
             }
@@ -274,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error fetching from Gemini:', error);
-            // Re-throw a potentially more user-friendly message
             throw new Error(`Failed to generate content: ${error.message}`); 
         }
     }
@@ -301,13 +282,12 @@ Requirements:
             '4': `Write an informative article about the custom topic: "${topic}". Ensure logical flow, supporting details/examples, balanced perspective (if needed), and clear explanations. Adapt the tone based on the topic. ${commonRequirements}`
         };
 
-        return `${baseInstruction}\n\n${specificInstructions[currentCategory] || specificInstructions['4']}`; // Fallback to custom prompt structure
+        return `${baseInstruction}\n\n${specificInstructions[currentCategory] || specificInstructions['4']}`;
     }
 
     function generateFilename(topic, index) {
-        // Sanitize topic for filename
         const safeTopic = topic.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '_').substring(0, 50);
-        return `article_${safeTopic}_${index}.md`; // Save as Markdown
+        return `article_${safeTopic}_${index}.md`;
     }
 
     function downloadZipFile(content, topic) {
@@ -327,7 +307,6 @@ Requirements:
         }, 100);
     }
 
-    // --- UI Updates (Progress, Status) ---
     function updateProgress(percentage) {
         const rounded = Math.min(100, Math.max(0, Math.floor(percentage)));
         progressBar.style.width = `${rounded}%`;
@@ -338,7 +317,7 @@ Requirements:
         updateProgress(0);
     }
 
-    function showStatus(message, type = 'info') { // success, error, info
+    function showStatus(message, type = 'info') {
         statusBar.className = `alert alert-${type}`;
         statusBar.innerHTML = `<i class="fas ${getStatusIcon(type)}"></i> ${message}`;
         statusBar.classList.remove('hidden');
@@ -364,14 +343,12 @@ Requirements:
               '1': 'Impact of Recent Transfers on Major European Football Leagues',
               '2': 'Easy Weeknight Dinner Recipes using Pasta',
               '3': 'Top Budget-Friendly Travel Destinations in Southeast Asia for Backpackers',
-              '5': 'Comparison of Leading AI Image Generation Models (DALL-E, Midjourney, Stable Diffusion)'
               // Custom '4' doesn't have a default topic
+              '5': 'Comparison of Leading AI Image Generation Models (DALL-E, Midjourney, Stable Diffusion)'
           };
-          // Return the topic for the current category, or a generic default if somehow needed
           return topics[currentCategory] || 'Interesting Developments in Technology'; 
     }
 
-    // --- Run Initialization ---
     initialize();
 
-}); // End DOMContentLoaded
+});

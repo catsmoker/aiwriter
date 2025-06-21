@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>AI Content Generator - CATSMOKER</title>
+    
+    <link rel="icon" href="assets/ico/favicon.ico" type="image/x-icon">
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Font Awesome -->
+    
+    <!-- Global Base Styles -->
+    <link rel="stylesheet" href="assets/css/home.css">
+    <!-- Page Specific Styles -->
+    <link rel="stylesheet" href="assets/css/aiwriter.css">
+    <!-- Cursor Styles -->
+    <link rel="stylesheet" href="assets/css/cursor.css">
+
+    <!-- JSZip library for creating zip files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+</head>
+<body>
+    <!-- Custom cursor elements -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-dot-outline"></div>
+
+    <!-- Back Button -->
+    <header class="page-header-nav">
+        <a href="index.html" class="back-button-page" aria-label="Go back to main page">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </header>
+
+    <div class="main-container-page ai-writer-container">
+        <!-- Header Section -->
+        <section class="profile-header-page container-card">
+             <img src="assets/imgs/logo.webp" alt="CATSMOKER Logo" class="profile-pic">
+            <h1><i class="fas fa-feather-alt"></i> AI Content Generator</h1>
+            <p>Create high-quality, SEO-optimized articles with AI. Powered by Google Gemini.</p>
+        </section>
+
+        <!-- API Key Input Section -->
+        <div id="apiSection" class="container-card api-key-card">
+            <div class="input-group">
+                <label for="apiKey"><i class="fas fa-key"></i> Your Gemini API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter your Gemini API key" autocomplete="off">
+                <p class="api-key-notice">
+                    <i class="fas fa-lock"></i> Your API key is stored locally in your browser and never sent to our servers.
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="get-key-link">Get a free API key here.</a>
+                </p>
+            </div>
+            <button class="btn btn-save-key" onclick="saveAPIKey()" aria-label="Save API key">
+                <i class="fas fa-save"></i> Save API Key
+            </button>
+            <div id="apiKeyStatus" class="api-key-status" role="status"></div>
+        </div>
+
+        <!-- Main Generator UI (hidden initially) -->
+        <div id="mainUI" class="hidden">
+            <div class="container-card generator-card">
+                <h2><i class="fas fa-th-large"></i> 1. Select Content Type</h2>
+                <div class="category-grid">
+                    <div class="category-card" data-category="1" tabindex="0">
+                        <i class="fas fa-futbol"></i>
+                        <h3>Sports Articles</h3>
+                    </div>
+                    <div class="category-card" data-category="2" tabindex="0">
+                        <i class="fas fa-utensils"></i>
+                        <h3>Food Recipes</h3>
+                    </div>
+                    <div class="category-card" data-category="3" tabindex="0">
+                        <i class="fas fa-plane"></i>
+                        <h3>Travel Guides</h3>
+                    </div>
+                    <div class="category-card" data-category="5" tabindex="0">
+                        <i class="fas fa-laptop-code"></i>
+                        <h3>Tech Articles</h3>
+                    </div>
+                    <div class="category-card" data-category="4" tabindex="0">
+                        <i class="fas fa-edit"></i>
+                        <h3>Custom Topic</h3>
+                    </div>
+                    <!-- Add more categories as needed -->
+                </div>
+
+                <div id="customTopicSection" class="input-group hidden"> <!-- Renamed ID -->
+                    <label for="customTopicInput"><i class="fas fa-pen-alt"></i> Custom Article Title / Topic</label>
+                    <textarea id="customTopicInput" rows="3" placeholder="E.g., 'The Future of Renewable Energy' or 'Beginner's Guide to Python Programming'..."></textarea>
+                </div>
+                
+                <h2><i class="fas fa-cog"></i> 2. Configure Output</h2>
+                <div class="input-group">
+                    <label for="articleCount"><i class="fas fa-copy"></i> Number of Articles (Max 10)</label>
+                    <input type="number" id="articleCount" value="1" min="1" max="10" aria-label="Number of articles to generate">
+                </div>
+                <!-- Add more configuration options here if needed (e.g., tone, length) -->
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+                </div>
+
+                <div id="statusBar" class="alert hidden" role="status" aria-live="polite"></div>
+
+                <button class="btn btn-generate" onclick="generateArticles()" id="generateBtn" aria-label="Generate articles">
+                    <i class="fas fa-rocket"></i> Generate Articles
+                </button>
+                 <button class="btn btn-change-key" onclick="changeApiKey()" id="changeApiBtn" aria-label="Change API Key">
+                    <i class="fas fa-key"></i> Change API Key
+                </button>
+            </div>
+        </div>
+
+  <!-- Ad Section -->
+  <div class="ad-section">
+    <p class="ad-message">Support CATSMOKER by viewing a few ads. Your support helps keep the content free and the fridge full! 🍕</p>
+    <div class="ad-container">
+      <!-- ad script isolation -->
+<script type="text/javascript">
+	atOptions = {
+		'key' : '63fa2911679096f507a57fc2ae1aa25b',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/63fa2911679096f507a57fc2ae1aa25b/invoke.js"></script>
+      <!-- Static fallback banner -->
+      <a href="https://beta.publishers.adsterratech.com/referral/EjjBnqjx77" rel="nofollow noopener">
+        <img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/728%20x%2090%20px.png" width="728" height="90" loading="lazy" class="img-fluid rounded-3" />
+      </a>
+    </div>
+  </div>
+
+    <!-- Footer -->
+    <footer class="global-footer-enhanced">
+        <p>© 2024-2025 CATSMOKER. All rights reserved.</p>
+        <!-- Removed viewers count from tool page -->
+    </footer>
+
+    <script src="assets/js/aiwriter.js" defer></script>
+    <script src="assets/js/cursor.js" defer></script>
+</body>
+</html>
